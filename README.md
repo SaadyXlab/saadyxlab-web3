@@ -50,6 +50,6 @@ Open to feedback, ideas, and collaborations.
 
 ---
 
-##🧑‍💻 Author: 
+## 🧑‍💻 Author: 
 
 Built by @SaadyXLab
