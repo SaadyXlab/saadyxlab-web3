@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chain Rep // Final Form</title>
+<title>Mint War Room</title>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
 
@@ -11,86 +11,83 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  font-family:Inter, sans-serif;
-  background:radial-gradient(circle at top,#0a0a0a,#000);
+  font-family:Inter,sans-serif;
+  background:#050505;
   color:#fff;
 }
 
 /* NAV */
 .nav{
-  display:flex;justify-content:space-between;
-  padding:20px;border-bottom:1px solid #111;
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+  border-bottom:1px solid #111;
 }
-.logo{color:#00ffd5;font-weight:bold}
+.logo{color:#ff4d4d;font-weight:bold}
 
 /* HERO */
 .hero{
-  text-align:center;padding:40px 20px;
+  text-align:center;
+  padding:30px 20px;
 }
 
 h1{
-  font-size:2.5rem;
-  background:linear-gradient(90deg,#00ffd5,#7df9ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  font-size:2.2rem;
+  color:#ff4d4d;
 }
 
-.sub{color:#aaa;margin:10px 0 25px}
-
-/* CARD */
-.card{
-  margin:auto;
-  max-width:420px;
-  padding:25px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid #00ffd522;
-  box-shadow:0 0 40px #00ffd522;
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:20px;
+  max-width:500px;
+  margin:20px auto;
 }
 
-/* BUTTONS */
-button{
-  width:100%;
-  margin-top:10px;
-  padding:14px;
-  border:none;
-  border-radius:30px;
-  cursor:pointer;
-  font-weight:bold;
-  background:linear-gradient(90deg,#00ffd5,#7df9ff);
-  color:#000;
-}
-
-button:hover{
-  transform:scale(1.05);
-}
-
-.share{background:#1da1f2;color:#fff}
-.badge{background:#ffcc00;color:#000}
-
-/* RESULT */
-.result{
-  margin-top:15px;
-  padding:15px;
+/* BOX */
+.box{
   background:#0f0f0f;
-  border-radius:10px;
+  padding:20px;
+  border-radius:15px;
   border:1px solid #222;
 }
 
-/* LEADERBOARD */
-.board{
-  margin-top:25px;
-  text-align:left;
+/* BUTTON */
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-.board h3{margin-bottom:10px;color:#00ffd5}
+.mint{background:#ff4d4d;color:#fff}
+.snipe{background:#00ffd5;color:#000}
+.share{background:#1da1f2;color:#fff}
+
+/* FEED */
+.feed{
+  max-height:150px;
+  overflow:auto;
+  font-size:0.85rem;
+}
 
 .entry{
-  font-size:0.85rem;
-  margin:5px 0;
+  margin:4px 0;
   opacity:0.8;
 }
 
+/* STATUS */
+.status{
+  margin-top:10px;
+  font-size:0.9rem;
+  color:#00ffd5;
+}
+
+/* FOOTER */
 .footer{
   text-align:center;
   padding:20px;
@@ -102,30 +99,34 @@ button:hover{
 <body>
 
 <div class="nav">
-  <div class="logo">CHAIN REP</div>
-  <div>● Live</div>
+  <div class="logo">MINT WAR ROOM</div>
+  <div id="wallet">Not connected</div>
 </div>
 
 <div class="hero">
-  <h1>Chain Reputation Engine</h1>
-  <p class="sub">Your wallet has a story. Let’s score it.</p>
+  <h1>LIVE MINT FEED</h1>
+  <p>Track mint activity in real-time</p>
+</div>
 
-  <div class="card">
-    <div id="wallet">Not connected</div>
+<div class="grid">
 
-    <button onclick="connect()">Connect Wallet</button>
-    <button onclick="analyze()">Analyze</button>
+  <div class="box">
+    <p id="countdown">Loading...</p>
+    <p id="supply">Minted: 1200 / 2222</p>
+    <p id="gas">Gas: 22 gwei</p>
 
-    <div class="result" id="result"></div>
+    <button class="mint" onclick="mint()">Mint</button>
+    <button class="snipe" onclick="snipe()">Activate Snipe Mode</button>
+    <button class="share" onclick="share()">Share</button>
 
-    <button class="share" onclick="share()">Share Result</button>
-    <button class="badge" onclick="mintBadge()">Mint Rep Badge</button>
-
-    <div class="board">
-      <h3>🏆 Top Wallets</h3>
-      <div id="leaderboard"></div>
-    </div>
+    <div class="status" id="status"></div>
   </div>
+
+  <div class="box">
+    <h3>Recent Mints</h3>
+    <div class="feed" id="feed"></div>
+  </div>
+
 </div>
 
 <div class="footer">
@@ -134,92 +135,71 @@ Built by @SaadyXLab • Web3 Dev Journey
 
 <script>
 let user="";
-let lastScore=0;
-let lastType="";
+let minted=1200;
 
-// CONNECT
+// CONNECT WALLET
 async function connect(){
   if(!window.ethereum) return alert("Install MetaMask");
-
   const acc=await window.ethereum.request({method:"eth_requestAccounts"});
   user=acc[0];
-
-  document.getElementById("wallet").innerText=
+  document.getElementById("wallet").innerText =
     user.slice(0,6)+"..."+user.slice(-4);
 }
+connect();
 
-// ANALYZE
-async function analyze(){
-  if(!user) return alert("Connect wallet");
+// COUNTDOWN
+const end = new Date().getTime() + 3600000;
+setInterval(()=>{
+  const now = new Date().getTime();
+  const diff = end - now;
+  const min = Math.floor(diff/60000);
+  document.getElementById("countdown").innerText =
+    "Mint ends in " + min + " mins";
+},1000);
 
-  const provider=new ethers.BrowserProvider(window.ethereum);
-  const bal=await provider.getBalance(user);
-  const eth=parseFloat(ethers.formatEther(bal));
+// SUPPLY UPDATE
+setInterval(()=>{
+  minted += Math.floor(Math.random()*3);
+  document.getElementById("supply").innerText =
+    "Minted: " + minted + " / 2222";
+},2000);
 
-  const types=[
-    "Alpha Wallet 🧠",
-    "Degen Mode ⚡",
-    "Airdrop Farmer 🌾",
-    "NFT Collector 🖼️",
-    "Silent Builder 🧑‍💻"
-  ];
+// GAS SIM
+setInterval(()=>{
+  const gas = Math.floor(Math.random()*40)+20;
+  document.getElementById("gas").innerText =
+    "Gas: " + gas + " gwei";
+},3000);
 
-  lastType=types[Math.floor(Math.random()*types.length)];
+// FEED
+setInterval(()=>{
+  const wallets=["0xA1...2F","0x9B...7C","0x33...AA","0x77...DD"];
+  const rand=wallets[Math.floor(Math.random()*wallets.length)];
 
-  // score logic (balance influence)
-  lastScore=Math.min(100, Math.floor(eth*50)+Math.floor(Math.random()*50));
+  const div=document.createElement("div");
+  div.className="entry";
+  div.innerText=rand+" minted 1";
 
-  document.getElementById("result").innerHTML=
-    `<h3>${lastType}</h3>
-     <p>Balance: ${eth.toFixed(3)} ETH</p>
-     <p>Rep Score: <b>${lastScore}/100</b></p>`;
+  document.getElementById("feed").prepend(div);
+},2000);
 
-  saveScore(user,lastScore);
-  loadBoard();
+// MINT
+function mint(){
+  document.getElementById("status").innerText="Mint sent 🚀";
 }
 
-// SAVE SCORE
-function saveScore(addr,score){
-  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
-  data.push({addr,score});
-  data.sort((a,b)=>b.score-a.score);
-  data=data.slice(0,5);
-  localStorage.setItem("repBoard",JSON.stringify(data));
-}
-
-// LOAD BOARD
-function loadBoard(){
-  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
-  const el=document.getElementById("leaderboard");
-  el.innerHTML="";
-
-  data.forEach(d=>{
-    const div=document.createElement("div");
-    div.className="entry";
-    div.innerText=d.addr.slice(0,6)+"..."+d.addr.slice(-4)+" — "+d.score;
-    el.appendChild(div);
-  });
+// SNIPE MODE
+function snipe(){
+  document.getElementById("status").innerText="Snipe mode active ⚡";
 }
 
 // SHARE
 function share(){
-  if(!lastScore) return alert("Analyze first");
-
   const text=encodeURIComponent(
-    `My Chain Rep: ${lastType} (${lastScore}/100)\nCheck yours 👇`
+    "Watching a live mint 👀 FOMO is real"
   );
-
   window.open("https://twitter.com/intent/tweet?text="+text,"_blank");
 }
-
-// MINT BADGE (SIMULATED)
-function mintBadge(){
-  if(!lastScore) return alert("Analyze first");
-
-  alert("Rep Badge Minted 🪪 (simulated)");
-}
-
-loadBoard();
 </script>
 
 </body>
