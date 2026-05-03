@@ -37,14 +37,14 @@ To understand how users interact with Web3 products beyond just design — focus
 
 ---
 
-## 📍 Status
+##  📍 Status
 
 Early stage experiments.  
 Actively improving and iterating.
 
 ---
 
-##🤝 Feedback
+## 🤝 Feedback
 
 Open to feedback, ideas, and collaborations.
 
