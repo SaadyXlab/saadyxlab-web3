@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chain Rep // Final Form</title>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter, sans-serif;
+  background:radial-gradient(circle at top,#0a0a0a,#000);
+  color:#fff;
+}
+
+/* NAV */
+.nav{
+  display:flex;justify-content:space-between;
+  padding:20px;border-bottom:1px solid #111;
+}
+.logo{color:#00ffd5;font-weight:bold}
+
+/* HERO */
+.hero{
+  text-align:center;padding:40px 20px;
+}
+
+h1{
+  font-size:2.5rem;
+  background:linear-gradient(90deg,#00ffd5,#7df9ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.sub{color:#aaa;margin:10px 0 25px}
+
+/* CARD */
+.card{
+  margin:auto;
+  max-width:420px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid #00ffd522;
+  box-shadow:0 0 40px #00ffd522;
+}
+
+/* BUTTONS */
+button{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  font-weight:bold;
+  background:linear-gradient(90deg,#00ffd5,#7df9ff);
+  color:#000;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+.share{background:#1da1f2;color:#fff}
+.badge{background:#ffcc00;color:#000}
+
+/* RESULT */
+.result{
+  margin-top:15px;
+  padding:15px;
+  background:#0f0f0f;
+  border-radius:10px;
+  border:1px solid #222;
+}
+
+/* LEADERBOARD */
+.board{
+  margin-top:25px;
+  text-align:left;
+}
+
+.board h3{margin-bottom:10px;color:#00ffd5}
+
+.entry{
+  font-size:0.85rem;
+  margin:5px 0;
+  opacity:0.8;
+}
+
+.footer{
+  text-align:center;
+  padding:20px;
+  opacity:0.4;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+  <div class="logo">CHAIN REP</div>
+  <div>● Live</div>
+</div>
+
+<div class="hero">
+  <h1>Chain Reputation Engine</h1>
+  <p class="sub">Your wallet has a story. Let’s score it.</p>
+
+  <div class="card">
+    <div id="wallet">Not connected</div>
+
+    <button onclick="connect()">Connect Wallet</button>
+    <button onclick="analyze()">Analyze</button>
+
+    <div class="result" id="result"></div>
+
+    <button class="share" onclick="share()">Share Result</button>
+    <button class="badge" onclick="mintBadge()">Mint Rep Badge</button>
+
+    <div class="board">
+      <h3>🏆 Top Wallets</h3>
+      <div id="leaderboard"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+Built by @SaadyXLab • Web3 Dev Journey
+</div>
+
+<script>
+let user="";
+let lastScore=0;
+let lastType="";
+
+// CONNECT
+async function connect(){
+  if(!window.ethereum) return alert("Install MetaMask");
+
+  const acc=await window.ethereum.request({method:"eth_requestAccounts"});
+  user=acc[0];
+
+  document.getElementById("wallet").innerText=
+    user.slice(0,6)+"..."+user.slice(-4);
+}
+
+// ANALYZE
+async function analyze(){
+  if(!user) return alert("Connect wallet");
+
+  const provider=new ethers.BrowserProvider(window.ethereum);
+  const bal=await provider.getBalance(user);
+  const eth=parseFloat(ethers.formatEther(bal));
+
+  const types=[
+    "Alpha Wallet 🧠",
+    "Degen Mode ⚡",
+    "Airdrop Farmer 🌾",
+    "NFT Collector 🖼️",
+    "Silent Builder 🧑‍💻"
+  ];
+
+  lastType=types[Math.floor(Math.random()*types.length)];
+
+  // score logic (balance influence)
+  lastScore=Math.min(100, Math.floor(eth*50)+Math.floor(Math.random()*50));
+
+  document.getElementById("result").innerHTML=
+    `<h3>${lastType}</h3>
+     <p>Balance: ${eth.toFixed(3)} ETH</p>
+     <p>Rep Score: <b>${lastScore}/100</b></p>`;
+
+  saveScore(user,lastScore);
+  loadBoard();
+}
+
+// SAVE SCORE
+function saveScore(addr,score){
+  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
+  data.push({addr,score});
+  data.sort((a,b)=>b.score-a.score);
+  data=data.slice(0,5);
+  localStorage.setItem("repBoard",JSON.stringify(data));
+}
+
+// LOAD BOARD
+function loadBoard(){
+  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
+  const el=document.getElementById("leaderboard");
+  el.innerHTML="";
+
+  data.forEach(d=>{
+    const div=document.createElement("div");
+    div.className="entry";
+    div.innerText=d.addr.slice(0,6)+"..."+d.addr.slice(-4)+" — "+d.score;
+    el.appendChild(div);
+  });
+}
+
+// SHARE
+function share(){
+  if(!lastScore) return alert("Analyze first");
+
+  const text=encodeURIComponent(
+    `My Chain Rep: ${lastType} (${lastScore}/100)\nCheck yours 👇`
+  );
+
+  window.open("https://twitter.com/intent/tweet?text="+text,"_blank");
+}
+
+// MINT BADGE (SIMULATED)
+function mintBadge(){
+  if(!lastScore) return alert("Analyze first");
+
+  alert("Rep Badge Minted 🪪 (simulated)");
+}
+
+loadBoard();
+</script>
+
+</body>
+</html>
