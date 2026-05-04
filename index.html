@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mint War Room</title>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Inter,sans-serif;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
+  color:#fff;
+}
+
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+  border-bottom:1px solid #111;
+}
+.logo{color:#ff4d4d;font-weight:bold}
+
+.connect-btn{
+  padding:6px 12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* HERO */
+.hero{
+  text-align:center;
+  padding:30px 20px;
+}
+
+h1{
+  font-size:2.4rem;
+  background: linear-gradient(90deg,#ff4d4d,#ff7a7a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  gap:20px;
+  max-width:500px;
+  margin:20px auto;
+}
+
+/* BOX */
+.box{
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  padding:20px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 30px rgba(255,77,77,0.08);
+  transition:0.3s;
+}
+.box:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 0 40px rgba(255,77,77,0.2);
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:30px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.25s;
+}
+button:hover{
+  transform:scale(1.05);
+}
+
+.mint{
+  background: linear-gradient(90deg,#ff4d4d,#ff1a1a);
+  color:#fff;
+  box-shadow:0 0 15px #ff4d4d55;
+}
+
+.snipe{
+  background: linear-gradient(90deg,#00ffd5,#00c2a8);
+  color:#000;
+  box-shadow:0 0 15px #00ffd555;
+}
+
+.share{
+  background:#1da1f2;
+  color:#fff;
+}
+
+/* FEED */
+.feed{
+  max-height:150px;
+  overflow:auto;
+  font-size:0.85rem;
+}
+
+.entry{
+  margin:4px 0;
+  opacity:0.8;
+  animation: fadeIn 0.4s ease;
+}
+
+/* STATUS */
+.status{
+  margin-top:10px;
+  font-size:0.9rem;
+  color:#00ffd5;
+}
+
+/* WALLET TEXT */
+#wallet{
+  color:#00ffd5;
+  font-weight:bold;
+}
+
+/* MODAL */
+#walletModal{
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter: blur(6px);
+  justify-content:center;
+  align-items:center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-box{
+  background:#111;
+  padding:25px;
+  border-radius:20px;
+  width:300px;
+  text-align:center;
+  box-shadow:0 0 40px #ff4d4d33;
+  animation: popUp 0.3s ease;
+}
+
+.modal-box button{
+  border-radius:10px;
+}
+
+/* ANIMATIONS */
+@keyframes popUp{
+  from{transform:scale(0.8);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(5px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  padding:20px;
+  opacity:0.4;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+  <div class="logo">MINT WAR ROOM</div>
+  <div>
+    <span id="wallet">Not connected</span>
+    <button class="connect-btn" onclick="openWallets()">Connect</button>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>LIVE MINT FEED</h1>
+  <p>Track mint activity in real-time</p>
+</div>
+
+<div class="grid">
+
+  <div class="box">
+    <p id="countdown">Loading...</p>
+    <p id="supply">Minted: 1200 / 2222</p>
+    <p id="gas">Gas: 22 gwei</p>
+
+    <button class="mint" onclick="mint()">Mint</button>
+    <button class="snipe" onclick="snipe()">Activate Snipe Mode</button>
+    <button class="share" onclick="share()">Share</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="box">
+    <h3>Recent Mints</h3>
+    <div class="feed" id="feed"></div>
+  </div>
+
+</div>
+
+<!-- WALLET MODAL -->
+<div id="walletModal">
+  <div class="modal-box">
+    <h3>Select Wallet</h3>
+
+    <button onclick="connectMetaMask()">🦊MetaMask</button>
+    <button onclick="connectTrust()">🛡️Trust Wallet</button>
+<button onclick="connectWallet()">🔗WalletConect</button>
+    <p id="walletStatus" style="font-size:0.8rem;margin-top:10px;"></p>
+   <button onclick="closeWallets()" style="background:#222;color:#fff;margin-top:10px;">
+      Close
+    </button>
+  </div>
+</div>
+
+<div class="footer">
+Built by @SaadyXLab • Web3 Dev Journey
+</div>
+
+<script>
+let user="";
+let minted=1200;
+
+/* MODAL */
+function openWallets(){
+  document.getElementById("walletModal").style.display="flex";
+}
+function closeWallets(){
+  document.getElementById("walletModal").style.display="none";
+}
+
+/* CONNECT */
+async function connectMetaMask(){
+  if(!window.ethereum){
+    document.getElementById("walletStatus").innerText =
+      "MetaMask not found → installing...";
+    window.open("https://metamask.io/download/","_blank");
+    return;
+  }
+
+  const acc = await window.ethereum.request({method:"eth_requestAccounts"});
+  user = acc[0];
+
+  document.getElementById("wallet").innerText =
+    user.slice(0,6)+"..."+user.slice(-4);
+
+  closeWallets();
+}
+
+function connectTrust(){
+  if(!window.ethereum){
+    document.getElementById("walletStatus").innerText =
+      "Use Trust Wallet browser";
+    return;
+  }
+  connectMetaMask();
+}
+
+/* COUNTDOWN */
+const end = new Date().getTime() + 3600000;
+setInterval(()=>{
+  const now = new Date().getTime();
+  const diff = end - now;
+  const min = Math.floor(diff/60000);
+  document.getElementById("countdown").innerText =
+    "Mint ends in " + min + " mins";
+},1000);
+
+/* SUPPLY */
+setInterval(()=>{
+  minted += Math.floor(Math.random()*3);
+  document.getElementById("supply").innerText =
+    "Minted: " + minted + " / 2222";
+},2000);
+
+/* GAS */
+setInterval(()=>{
+  const gas = Math.floor(Math.random()*40)+20;
+  document.getElementById("gas").innerText =
+    "Gas: " + gas + " gwei";
+},3000);
+
+/* FEED */
+setInterval(()=>{
+  const wallets=["0xA1...2F","0x9B...7C","0x33...AA","0x77...DD"];
+  const rand=wallets[Math.floor(Math.random()*wallets.length)];
+
+  const div=document.createElement("div");
+  div.className="entry";
+  div.innerText=rand+" minted 1";
+
+  document.getElementById("feed").prepend(div);
+},2000);
+
+/* ACTIONS */
+function mint(){
+  document.getElementById("status").innerText="Mint sent 🚀";
+}
+function snipe(){
+  document.getElementById("status").innerText="Snipe mode active ⚡";
+}
+
+/* SHARE */
+function share(){
+  const text=encodeURIComponent(
+    "Watching a live mint 👀 FOMO is real"
+  );
+  window.open("https://twitter.com/intent/tweet?text="+text,"_blank");
+}
+</script>
+
+</body>
+</html>
