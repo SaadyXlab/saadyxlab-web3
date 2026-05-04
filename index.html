@@ -12,7 +12,7 @@
 
 body{
   font-family:Inter,sans-serif;
-  background:#050505;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
   color:#fff;
 }
 
@@ -25,6 +25,13 @@ body{
 }
 .logo{color:#ff4d4d;font-weight:bold}
 
+.connect-btn{
+  padding:6px 12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
 /* HERO */
 .hero{
   text-align:center;
@@ -32,14 +39,15 @@ body{
 }
 
 h1{
-  font-size:2.2rem;
-  color:#ff4d4d;
+  font-size:2.4rem;
+  background: linear-gradient(90deg,#ff4d4d,#ff7a7a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
 /* GRID */
 .grid{
   display:grid;
-  grid-template-columns:1fr;
   gap:20px;
   max-width:500px;
   margin:20px auto;
@@ -47,10 +55,17 @@ h1{
 
 /* BOX */
 .box{
-  background:#0f0f0f;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
   padding:20px;
-  border-radius:15px;
-  border:1px solid #222;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 30px rgba(255,77,77,0.08);
+  transition:0.3s;
+}
+.box:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 0 40px rgba(255,77,77,0.2);
 }
 
 /* BUTTON */
@@ -59,14 +74,31 @@ button{
   padding:14px;
   margin-top:10px;
   border:none;
-  border-radius:25px;
+  border-radius:30px;
   font-weight:bold;
   cursor:pointer;
+  transition:0.25s;
+}
+button:hover{
+  transform:scale(1.05);
 }
 
-.mint{background:#ff4d4d;color:#fff}
-.snipe{background:#00ffd5;color:#000}
-.share{background:#1da1f2;color:#fff}
+.mint{
+  background: linear-gradient(90deg,#ff4d4d,#ff1a1a);
+  color:#fff;
+  box-shadow:0 0 15px #ff4d4d55;
+}
+
+.snipe{
+  background: linear-gradient(90deg,#00ffd5,#00c2a8);
+  color:#000;
+  box-shadow:0 0 15px #00ffd555;
+}
+
+.share{
+  background:#1da1f2;
+  color:#fff;
+}
 
 /* FEED */
 .feed{
@@ -78,6 +110,7 @@ button{
 .entry{
   margin:4px 0;
   opacity:0.8;
+  animation: fadeIn 0.4s ease;
 }
 
 /* STATUS */
@@ -85,6 +118,50 @@ button{
   margin-top:10px;
   font-size:0.9rem;
   color:#00ffd5;
+}
+
+/* WALLET TEXT */
+#wallet{
+  color:#00ffd5;
+  font-weight:bold;
+}
+
+/* MODAL */
+#walletModal{
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter: blur(6px);
+  justify-content:center;
+  align-items:center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-box{
+  background:#111;
+  padding:25px;
+  border-radius:20px;
+  width:300px;
+  text-align:center;
+  box-shadow:0 0 40px #ff4d4d33;
+  animation: popUp 0.3s ease;
+}
+
+.modal-box button{
+  border-radius:10px;
+}
+
+/* ANIMATIONS */
+@keyframes popUp{
+  from{transform:scale(0.8);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(5px)}
+  to{opacity:1; transform:translateY(0)}
 }
 
 /* FOOTER */
@@ -100,7 +177,10 @@ button{
 
 <div class="nav">
   <div class="logo">MINT WAR ROOM</div>
-  <div id="wallet">Not connected</div>
+  <div>
+    <span id="wallet">Not connected</span>
+    <button class="connect-btn" onclick="openWallets()">Connect</button>
+  </div>
 </div>
 
 <div class="hero">
@@ -129,6 +209,21 @@ button{
 
 </div>
 
+<!-- WALLET MODAL -->
+<div id="walletModal">
+  <div class="modal-box">
+    <h3>Select Wallet</h3>
+
+    <button onclick="connectMetaMask()">🦊MetaMask</button>
+    <button onclick="connectTrust()">🛡️Trust Wallet</button>
+<button onclick="connectWallet()">🔗WalletConect</button>
+    <p id="walletStatus" style="font-size:0.8rem;margin-top:10px;"></p>
+   <button onclick="closeWallets()" style="background:#222;color:#fff;margin-top:10px;">
+      Close
+    </button>
+  </div>
+</div>
+
 <div class="footer">
 Built by @SaadyXLab • Web3 Dev Journey
 </div>
@@ -137,17 +232,42 @@ Built by @SaadyXLab • Web3 Dev Journey
 let user="";
 let minted=1200;
 
-// CONNECT WALLET
-async function connect(){
-  if(!window.ethereum) return alert("Install MetaMask");
-  const acc=await window.ethereum.request({method:"eth_requestAccounts"});
-  user=acc[0];
+/* MODAL */
+function openWallets(){
+  document.getElementById("walletModal").style.display="flex";
+}
+function closeWallets(){
+  document.getElementById("walletModal").style.display="none";
+}
+
+/* CONNECT */
+async function connectMetaMask(){
+  if(!window.ethereum){
+    document.getElementById("walletStatus").innerText =
+      "MetaMask not found → installing...";
+    window.open("https://metamask.io/download/","_blank");
+    return;
+  }
+
+  const acc = await window.ethereum.request({method:"eth_requestAccounts"});
+  user = acc[0];
+
   document.getElementById("wallet").innerText =
     user.slice(0,6)+"..."+user.slice(-4);
-}
-connect();
 
-// COUNTDOWN
+  closeWallets();
+}
+
+function connectTrust(){
+  if(!window.ethereum){
+    document.getElementById("walletStatus").innerText =
+      "Use Trust Wallet browser";
+    return;
+  }
+  connectMetaMask();
+}
+
+/* COUNTDOWN */
 const end = new Date().getTime() + 3600000;
 setInterval(()=>{
   const now = new Date().getTime();
@@ -157,21 +277,21 @@ setInterval(()=>{
     "Mint ends in " + min + " mins";
 },1000);
 
-// SUPPLY UPDATE
+/* SUPPLY */
 setInterval(()=>{
   minted += Math.floor(Math.random()*3);
   document.getElementById("supply").innerText =
     "Minted: " + minted + " / 2222";
 },2000);
 
-// GAS SIM
+/* GAS */
 setInterval(()=>{
   const gas = Math.floor(Math.random()*40)+20;
   document.getElementById("gas").innerText =
     "Gas: " + gas + " gwei";
 },3000);
 
-// FEED
+/* FEED */
 setInterval(()=>{
   const wallets=["0xA1...2F","0x9B...7C","0x33...AA","0x77...DD"];
   const rand=wallets[Math.floor(Math.random()*wallets.length)];
@@ -183,17 +303,15 @@ setInterval(()=>{
   document.getElementById("feed").prepend(div);
 },2000);
 
-// MINT
+/* ACTIONS */
 function mint(){
   document.getElementById("status").innerText="Mint sent 🚀";
 }
-
-// SNIPE MODE
 function snipe(){
   document.getElementById("status").innerText="Snipe mode active ⚡";
 }
 
-// SHARE
+/* SHARE */
 function share(){
   const text=encodeURIComponent(
     "Watching a live mint 👀 FOMO is real"
