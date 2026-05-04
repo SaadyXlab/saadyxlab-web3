@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mint War Room</title>
+<title>Chain Rep // Final Form</title>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
 
@@ -11,157 +11,99 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  font-family:Inter,sans-serif;
-  background: radial-gradient(circle at top, #0a0a0a, #000);
+  font-family:Inter, sans-serif;
+  background:radial-gradient(circle at top,#0a0a0a,#000);
   color:#fff;
 }
 
 /* NAV */
 .nav{
-  display:flex;
-  justify-content:space-between;
-  padding:20px;
-  border-bottom:1px solid #111;
+  display:flex;justify-content:space-between;
+  padding:20px;border-bottom:1px solid #111;
 }
-.logo{color:#ff4d4d;font-weight:bold}
-
-.connect-btn{
-  padding:6px 12px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
+.logo{color:#00ffd5;font-weight:bold}
 
 /* HERO */
 .hero{
-  text-align:center;
-  padding:30px 20px;
+  text-align:center;padding:40px 20px;
 }
 
 h1{
-  font-size:2.4rem;
-  background: linear-gradient(90deg,#ff4d4d,#ff7a7a);
+  font-size:2.5rem;
+  background:linear-gradient(90deg,#00ffd5,#7df9ff);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
 }
 
-/* GRID */
-.grid{
-  display:grid;
-  gap:20px;
-  max-width:500px;
-  margin:20px auto;
-}
+.sub{color:#aaa;margin:10px 0 25px}
 
-/* BOX */
-.box{
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  padding:20px;
+/* CARD */
+.card{
+  margin:auto;
+  max-width:420px;
+  padding:25px;
   border-radius:20px;
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 0 30px rgba(255,77,77,0.08);
-  transition:0.3s;
-}
-.box:hover{
-  transform: translateY(-5px);
-  box-shadow: 0 0 40px rgba(255,77,77,0.2);
+  background:rgba(255,255,255,0.05);
+  border:1px solid #00ffd522;
+  box-shadow:0 0 40px #00ffd522;
 }
 
-/* BUTTON */
+/* BUTTONS */
 button{
   width:100%;
-  padding:14px;
   margin-top:10px;
+  padding:14px;
   border:none;
   border-radius:30px;
-  font-weight:bold;
   cursor:pointer;
-  transition:0.25s;
-}
-button:hover{
-  transform:scale(1.05);
-}
-
-.mint{
-  background: linear-gradient(90deg,#ff4d4d,#ff1a1a);
-  color:#fff;
-  box-shadow:0 0 15px #ff4d4d55;
-}
-
-.snipe{
-  background: linear-gradient(90deg,#00ffd5,#00c2a8);
-  color:#000;
-  box-shadow:0 0 15px #00ffd555;
-}
-
-.share{
-  background:#1da1f2;
-  color:#fff;
-}
-
-/* FEED */
-.feed{
-  max-height:150px;
-  overflow:auto;
-  font-size:0.85rem;
-}
-
-.entry{
-  margin:4px 0;
-  opacity:0.8;
-  animation: fadeIn 0.4s ease;
-}
-
-/* STATUS */
-.status{
-  margin-top:10px;
-  font-size:0.9rem;
-  color:#00ffd5;
-}
-
-/* WALLET TEXT */
-#wallet{
-  color:#00ffd5;
   font-weight:bold;
+  background:linear-gradient(90deg,#00ffd5,#7df9ff);
+  color:#000;
 }
+
+button:hover{ transform:scale(1.05) }
+
+.share{background:#1da1f2;color:#fff}
+.badge{background:#ffcc00;color:#000}
+
+/* RESULT */
+.result{
+  margin-top:15px;
+  padding:15px;
+  background:#0f0f0f;
+  border-radius:10px;
+  border:1px solid #222;
+}
+
+/* LEADERBOARD */
+.board{ margin-top:25px;text-align:left }
+.board h3{margin-bottom:10px;color:#00ffd5}
+.entry{ font-size:0.85rem;margin:5px 0;opacity:0.8 }
 
 /* MODAL */
 #walletModal{
   display:none;
   position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
+  inset:0;
   background:rgba(0,0,0,0.8);
-  backdrop-filter: blur(6px);
   justify-content:center;
   align-items:center;
-  animation: fadeIn 0.3s ease;
 }
 
 .modal-box{
   background:#111;
-  padding:25px;
-  border-radius:20px;
-  width:300px;
+  padding:20px;
+  border-radius:15px;
+  width:280px;
   text-align:center;
-  box-shadow:0 0 40px #ff4d4d33;
-  animation: popUp 0.3s ease;
 }
 
-.modal-box button{
+.wallet-row{
+  padding:12px;
+  margin-top:10px;
+  background:#0f0f0f;
   border-radius:10px;
-}
-
-/* ANIMATIONS */
-@keyframes popUp{
-  from{transform:scale(0.8);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(5px)}
-  to{opacity:1; transform:translateY(0)}
+  cursor:pointer;
 }
 
 /* FOOTER */
@@ -176,37 +118,29 @@ button:hover{
 <body>
 
 <div class="nav">
-  <div class="logo">MINT WAR ROOM</div>
-  <div>
-    <span id="wallet">Not connected</span>
-    <button class="connect-btn" onclick="openWallets()">Connect</button>
-  </div>
+  <div class="logo">CHAIN REP</div>
+  <div id="wallet">Not connected</div>
 </div>
 
 <div class="hero">
-  <h1>LIVE MINT FEED</h1>
-  <p>Track mint activity in real-time</p>
-</div>
+  <h1>Chain Reputation Engine</h1>
+  <p class="sub">Your wallet has a story. Let’s score it.</p>
 
-<div class="grid">
+  <div class="card">
 
-  <div class="box">
-    <p id="countdown">Loading...</p>
-    <p id="supply">Minted: 1200 / 2222</p>
-    <p id="gas">Gas: 22 gwei</p>
+    <button onclick="openWallets()">Connect Wallet</button>
+    <button onclick="analyze()">Analyze</button>
 
-    <button class="mint" onclick="mint()">Mint</button>
-    <button class="snipe" onclick="snipe()">Activate Snipe Mode</button>
-    <button class="share" onclick="share()">Share</button>
+    <div class="result" id="result"></div>
 
-    <div class="status" id="status"></div>
+    <button class="share" onclick="share()">Share Result</button>
+    <button class="badge" onclick="mintBadge()">Mint Rep Badge</button>
+
+    <div class="board">
+      <h3>🏆 Top Wallets</h3>
+      <div id="leaderboard"></div>
+    </div>
   </div>
-
-  <div class="box">
-    <h3>Recent Mints</h3>
-    <div class="feed" id="feed"></div>
-  </div>
-
 </div>
 
 <!-- WALLET MODAL -->
@@ -214,13 +148,13 @@ button:hover{
   <div class="modal-box">
     <h3>Select Wallet</h3>
 
-    <button onclick="connectMetaMask()">🦊MetaMask</button>
-    <button onclick="connectTrust()">🛡️Trust Wallet</button>
-<button onclick="connectWallet()">🔗WalletConect</button>
+    <div class="wallet-row" onclick="connectMetaMask()">🦊 MetaMask</div>
+    <div class="wallet-row" onclick="connectTrust()">🛡️ Trust Wallet</div>
+    <div class="wallet-row" onclick="connectWalletConnect()">🔗 WalletConnect</div>
+
     <p id="walletStatus" style="font-size:0.8rem;margin-top:10px;"></p>
-   <button onclick="closeWallets()" style="background:#222;color:#fff;margin-top:10px;">
-      Close
-    </button>
+
+    <button onclick="closeWallets()">Close</button>
   </div>
 </div>
 
@@ -230,7 +164,8 @@ Built by @SaadyXLab • Web3 Dev Journey
 
 <script>
 let user="";
-let minted=1200;
+let lastScore=0;
+let lastType="";
 
 /* MODAL */
 function openWallets(){
@@ -240,84 +175,122 @@ function closeWallets(){
   document.getElementById("walletModal").style.display="none";
 }
 
-/* CONNECT */
+/* PROVIDER */
+function getProvider(){
+  return window.ethereum || null;
+}
+
+/* METAMASK */
 async function connectMetaMask(){
-  if(!window.ethereum){
-    document.getElementById("walletStatus").innerText =
-      "MetaMask not found → installing...";
+  const provider=getProvider();
+
+  if(!provider){
+    document.getElementById("walletStatus").innerText="Install MetaMask";
     window.open("https://metamask.io/download/","_blank");
     return;
   }
 
-  const acc = await window.ethereum.request({method:"eth_requestAccounts"});
-  user = acc[0];
+  const acc=await provider.request({method:"eth_requestAccounts"});
+  user=acc[0];
 
-  document.getElementById("wallet").innerText =
+  document.getElementById("wallet").innerText=
     user.slice(0,6)+"..."+user.slice(-4);
 
   closeWallets();
 }
 
-function connectTrust(){
-  if(!window.ethereum){
-    document.getElementById("walletStatus").innerText =
-      "Use Trust Wallet browser";
+/* TRUST */
+async function connectTrust(){
+  const provider=getProvider();
+
+  if(!provider){
+    document.getElementById("walletStatus").innerText="Open in Trust Wallet browser";
     return;
   }
-  connectMetaMask();
+
+  const acc=await provider.request({method:"eth_requestAccounts"});
+  user=acc[0];
+
+  document.getElementById("wallet").innerText=
+    user.slice(0,6)+"..."+user.slice(-4);
+
+  closeWallets();
 }
 
-/* COUNTDOWN */
-const end = new Date().getTime() + 3600000;
-setInterval(()=>{
-  const now = new Date().getTime();
-  const diff = end - now;
-  const min = Math.floor(diff/60000);
-  document.getElementById("countdown").innerText =
-    "Mint ends in " + min + " mins";
-},1000);
-
-/* SUPPLY */
-setInterval(()=>{
-  minted += Math.floor(Math.random()*3);
-  document.getElementById("supply").innerText =
-    "Minted: " + minted + " / 2222";
-},2000);
-
-/* GAS */
-setInterval(()=>{
-  const gas = Math.floor(Math.random()*40)+20;
-  document.getElementById("gas").innerText =
-    "Gas: " + gas + " gwei";
-},3000);
-
-/* FEED */
-setInterval(()=>{
-  const wallets=["0xA1...2F","0x9B...7C","0x33...AA","0x77...DD"];
-  const rand=wallets[Math.floor(Math.random()*wallets.length)];
-
-  const div=document.createElement("div");
-  div.className="entry";
-  div.innerText=rand+" minted 1";
-
-  document.getElementById("feed").prepend(div);
-},2000);
-
-/* ACTIONS */
-function mint(){
-  document.getElementById("status").innerText="Mint sent 🚀";
+/* WALLETCONNECT (BASIC) */
+function connectWalletConnect(){
+  document.getElementById("walletStatus").innerText="Opening wallet app...";
+  window.open("https://metamask.app.link/dapp/"+window.location.host,"_blank");
 }
-function snipe(){
-  document.getElementById("status").innerText="Snipe mode active ⚡";
+
+/* ANALYZE */
+async function analyze(){
+  if(!user) return alert("Connect wallet");
+
+  const provider=new ethers.BrowserProvider(window.ethereum);
+  const bal=await provider.getBalance(user);
+  const eth=parseFloat(ethers.formatEther(bal));
+
+  const types=[
+    "Alpha Wallet 🧠",
+    "Degen Mode ⚡",
+    "Airdrop Farmer 🌾",
+    "NFT Collector 🖼️",
+    "Silent Builder 🧑‍💻"
+  ];
+
+  lastType=types[Math.floor(Math.random()*types.length)];
+  lastScore=Math.min(100, Math.floor(eth*50)+Math.floor(Math.random()*50));
+
+  document.getElementById("result").innerHTML=
+    `<h3>${lastType}</h3>
+     <p>Balance: ${eth.toFixed(3)} ETH</p>
+     <p>Rep Score: <b>${lastScore}/100</b></p>`;
+
+  saveScore(user,lastScore);
+  loadBoard();
+}
+
+/* STORAGE */
+function saveScore(addr,score){
+  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
+  data.push({addr,score});
+  data.sort((a,b)=>b.score-a.score);
+  data=data.slice(0,5);
+  localStorage.setItem("repBoard",JSON.stringify(data));
+}
+
+function loadBoard(){
+  let data=JSON.parse(localStorage.getItem("repBoard"))||[];
+  const el=document.getElementById("leaderboard");
+  el.innerHTML="";
+
+  data.forEach(d=>{
+    const div=document.createElement("div");
+    div.className="entry";
+    div.innerText=d.addr.slice(0,6)+"..."+d.addr.slice(-4)+" — "+d.score;
+    el.appendChild(div);
+  });
 }
 
 /* SHARE */
 function share(){
+  if(!lastScore) return alert("Analyze first");
+
   const text=encodeURIComponent(
-    "Watching a live mint 👀 FOMO is real"
+    `My Chain Rep: ${lastType} (${lastScore}/100)\nCheck yours 👇`
   );
+
   window.open("https://twitter.com/intent/tweet?text="+text,"_blank");
 }
+
+/* BADGE */
+function mintBadge(){
+  if(!lastScore) return alert("Analyze first");
+  alert("Rep Badge Minted 🪪 (simulated)");
+}
+
+loadBoard();
 </script>
 
 </body>
